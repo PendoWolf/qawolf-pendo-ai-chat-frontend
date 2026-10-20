@@ -1,33 +1,43 @@
 import { useState, type FormEvent } from "react";
 import type { NewTrip } from "../api/trips";
 
-export function NewTripForm({ onCreate }: { onCreate: (trip: NewTrip) => Promise<void> }) {
-  const [destination, setDestination] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [travelers, setTravelers] = useState(1);
+const EMPTY_TRIP: NewTrip = { destination: "", startDate: "", endDate: "", travelers: 1 };
+
+/** The trip form, for planning a new trip and for editing one. */
+export function TripForm({
+  heading,
+  submitLabel,
+  initialTrip = EMPTY_TRIP,
+  onSubmit,
+}: {
+  heading: string;
+  submitLabel: string;
+  initialTrip?: NewTrip;
+  onSubmit: (trip: NewTrip) => Promise<void>;
+}) {
+  const [destination, setDestination] = useState(initialTrip.destination);
+  const [startDate, setStartDate] = useState(initialTrip.startDate);
+  const [endDate, setEndDate] = useState(initialTrip.endDate);
+  const [travelers, setTravelers] = useState(initialTrip.travelers);
   const [saving, setSaving] = useState(false);
 
-  const canSubmit = destination.trim() !== "" && startDate !== "" && endDate !== "" && !saving;
+  const canSubmit =
+    destination.trim() !== "" && startDate !== "" && endDate !== "" && endDate >= startDate && !saving;
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (!canSubmit) return;
     setSaving(true);
     try {
-      await onCreate({ destination: destination.trim(), startDate, endDate, travelers });
-      setDestination("");
-      setStartDate("");
-      setEndDate("");
-      setTravelers(1);
+      await onSubmit({ destination: destination.trim(), startDate, endDate, travelers });
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <form className="card" aria-labelledby="plan-trip-heading" onSubmit={submit}>
-      <h2 id="plan-trip-heading">Plan a trip</h2>
+    <form className="card" aria-labelledby="trip-form-heading" onSubmit={submit}>
+      <h2 id="trip-form-heading">{heading}</h2>
       <label>
         Destination
         <input value={destination} onChange={(e) => setDestination(e.target.value)} placeholder="Lisbon" />
@@ -53,7 +63,7 @@ export function NewTripForm({ onCreate }: { onCreate: (trip: NewTrip) => Promise
         </label>
       </div>
       <button type="submit" disabled={!canSubmit}>
-        {saving ? "Adding…" : "Add trip"}
+        {saving ? "Saving…" : submitLabel}
       </button>
     </form>
   );

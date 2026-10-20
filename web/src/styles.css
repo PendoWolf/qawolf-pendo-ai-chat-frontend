@@ -39,3 +39,17 @@ button.secondary { background: transparent; color: var(--accent); border: 1px so
 .assistant form { display: flex; gap: 0.5rem; padding: 1rem; border-top: 1px solid var(--line); }
 .assistant textarea { flex: 1; resize: none; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.top nav { display: flex; gap: 1rem; margin-bottom: 1rem; }
+.top nav a { color: var(--muted); text-decoration: none; }
+.top nav a.active { color: var(--accent); font-weight: 600; }
+.session { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; justify-content: flex-end; }
+.session span { color: var(--muted); font-size: 0.9rem; }
+.section-header { display: flex; justify-content: space-between; align-items: center; }
+.actions { display: flex; gap: 0.5rem; }
+a.button { font: inherit; padding: 0.5rem 0.9rem; border-radius: 8px; background: var(--accent); color: white; text-decoration: none; }
+a.button.secondary { background: transparent; color: var(--accent); border: 1px solid var(--line); }
+.sign-in { max-width: 380px; padding-top: 4rem; }
+.sign-in form.card label { margin-bottom: 1rem; }
+dl { display: grid; grid-template-columns: max-content 1fr; gap: 0.25rem 1rem; }
+dt { color: var(--muted); }
+dd { margin: 0; }

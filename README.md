@@ -1,13 +1,39 @@
 # Tripwise
 
-Tripwise is a trip-planning web app with an AI travel assistant. This repo is the
-**frontend only**: a Vite + React + TypeScript single-page app. Everything it shows
-comes from the **Tripwise API**, a separate backend service.
+Tripwise is a trip-planning web app for companies, with an AI travel assistant. This repo
+is the **frontend only**: a Vite + React + TypeScript single-page app with React Router.
+Everything it shows comes from the **Tripwise API**, a separate backend service
+(`PendoWolf/qawolf-pendo-ai-chat-api`).
 
 ## Structure
 
-- `web/` — the React app (trip list, "Plan a trip" form, and the AI assistant chat panel)
+- `web/` — the React app
+  - `src/pages/` — the pages: sign-in, trips, plan a trip, edit a trip, account
+  - `src/components/` — the app layout (navigation, sign-out), the trip form and list, and the AI assistant chat panel (`AssistantPanel.tsx`)
+  - `src/auth/` — the signed-in session: sign-in, sign-out and the route guard
+  - `src/api/` — the API calls, all through `client.ts`
 - `server/` — a static file server for the built app (`web/dist`). It has no API routes.
+
+## Pages
+
+| Route | Page |
+| --- | --- |
+| `/sign-in` | Sign in with an email and password |
+| `/trips` | Your trips, with Edit and Remove on each |
+| `/trips/new` | Plan a trip: a form that creates a trip |
+| `/trips/:tripId/edit` | Edit a trip: the same form, filled in, that saves changes |
+| `/account` | Your profile (a form that edits your name and email) and your company account |
+
+Every page but `/sign-in` needs a signed-in user, and sends anyone else to `/sign-in`. The
+header shows the signed-in user and their company, the "Ask the assistant" button and
+"Sign out".
+
+## Users and companies
+
+Signing in (`POST /api/auth/login`) returns a bearer token, the **user** (`id`, `email`, `name`,
+`role`, `accountId`) and their **account**, the company they belong to (`id`, `name`, `plan`).
+The app keeps them in `localStorage` (`tripwise.session`) and sends the token with every call.
+Signing out calls `POST /api/auth/logout` and clears the session.
 
 ## The Tripwise API
 
@@ -16,9 +42,14 @@ All calls go through `web/src/api/client.ts`.
 
 | Method | Path | Body | Returns |
 | --- | --- | --- | --- |
+| `POST` | `/api/auth/login` | `{ email, password }` | `{ token, user, account }` |
+| `POST` | `/api/auth/logout` | | `204` |
 | `GET` | `/api/trips` | | `Trip[]` |
+| `GET` | `/api/trips/:id` | | `Trip` |
 | `POST` | `/api/trips` | `{ destination, startDate, endDate, travelers }` | `Trip` |
+| `PUT` | `/api/trips/:id` | `{ destination, startDate, endDate, travelers }` | `Trip` |
 | `DELETE` | `/api/trips/:id` | | `204` |
+| `PUT` | `/api/users/:id` | `{ name, email }` | `User` |
 | `POST` | `/api/assistant/chat` | `{ conversationId, messages: [{ role, content }] }` | `{ conversationId, message: { id, role: "assistant", content } }` |
 
 `Trip` is `{ id, destination, startDate, endDate, travelers }`.
@@ -36,6 +67,9 @@ is kept for the session so the backend can keep context.
 npm run install:all
 npm run dev          # web on http://localhost:5173, expects the API on :3001
 ```
+
+The API's demo users sign in with the password `tripwise-demo`, for example
+`maya@northwind.example`.
 
 ## Configuration
 
